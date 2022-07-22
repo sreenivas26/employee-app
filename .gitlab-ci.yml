@@ -50,4 +50,6 @@ deploy:
     - docker tag $CI_REGISTRY_IMAGE $HEROKU_STAGING
     - docker login -u _ -p $HEROKU_STAGING_API_KEY
     - docker push $HEROKU_STAGING
+  tags:
+    - docker:stable 
 
