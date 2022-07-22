@@ -48,7 +48,7 @@ deploy:
   script:
     - docker pull $CI_REGISTRY_IMAGE
     - docker tag $CI_REGISTRY_IMAGE $HEROKU_STAGING
-    - docker login -u _ -p $HEROKU_STAGING_API_KEY
+    - docker login -u _ -p $HEROKU_STAGING_API_KEY registry.heroku.com
     - docker push $HEROKU_STAGING
   tags:
     - docker:stable 
