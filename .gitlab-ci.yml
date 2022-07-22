@@ -1,9 +1,13 @@
 stages:
   - test
   - build
+  - deploy
 
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-app/employee-image:$CI_COMMIT_REF_SLUG
+  STAGING_APP: emp-app-stage
+  HEROKU_STAGING: "registry.heroku.com/$STAGING_APP/web"
+    
 
 lint_test:
   image: python:3.8.0-slim
@@ -33,4 +37,17 @@ build:
     - docker push $CI_REGISTRY_IMAGE
   tags:
     - docker:stable
+
+deploy:
+  image: docker:stable
+  services:
+    - docker:dind
+  stage: deploy-staging
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE
+    - docker tag $CI_REGISTRY_IMAGE $HEROKU_STAGING
+    - docker login -u _ -p $HEROKU_STAGING_API_KEY
+    - docker push $HEROKU_STAGING
 
