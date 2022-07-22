@@ -1,7 +1,7 @@
 stages:
   - test
   - build
-  - deploy
+  - deploy-staging
 
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-app/employee-image:$CI_COMMIT_REF_SLUG
