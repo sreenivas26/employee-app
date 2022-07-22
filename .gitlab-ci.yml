@@ -50,6 +50,8 @@ deploy:
     - docker tag $CI_REGISTRY_IMAGE $HEROKU_STAGING
     - docker login -u _ -p $HEROKU_STAGING_API_KEY registry.heroku.com
     - docker push $HEROKU_STAGING
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_STAGING_API_KEY wingrunr21/alpine-heroku-cli container:release web --app $STAGING_APP
+    - echo "App deployed to stagig server at https://$STAGING_APP.herokuapp.com/"
   tags:
     - docker:stable 
 
