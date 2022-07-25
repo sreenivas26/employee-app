@@ -1,7 +1,8 @@
 stages:
-  - test
-  - build
-  - deploy-staging
+  #- test
+  #- build
+  #- deploy-staging
+  - automated testing
 
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-app/employee-image:$CI_COMMIT_REF_SLUG
@@ -54,4 +55,16 @@ deploy:
     - echo "App deployed to stagig server at https://$STAGING_APP.herokuapp.com/"
   tags:
     - docker:stable 
+
+test_stage:
+  image: alpine
+  stage: automated testing
+  before_script:
+    - apk --no-cache add curl
+  script:
+    - curl https://$STAGING_APP.herokuapp.com/ | grep "Employee Data"
+
+  tage:
+    - alpine
+
 
