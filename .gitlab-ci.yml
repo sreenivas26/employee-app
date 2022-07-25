@@ -64,7 +64,7 @@ test_stage:
   script:
     - curl https://$STAGING_APP.herokuapp.com/ | grep "Employee Data"
 
-  tage:
+  tags:
     - alpine
 
 
