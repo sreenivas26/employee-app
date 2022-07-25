@@ -3,11 +3,14 @@ stages:
   - build
   - deploy-staging
   - automated testing
+  - deploy production
 
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-app/employee-image:$CI_COMMIT_REF_SLUG
   STAGING_APP: emp-app-stage
   HEROKU_STAGING: "registry.heroku.com/$STAGING_APP/web"
+  PRODUCTION_APP: emp-app-production
+  HEROKU_PRODUCTION: "registry.heroku.com/$PRODUCTION_APP/web"
     
 
 lint_test:
@@ -33,9 +36,9 @@ build:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build -t $CI_REGISTRY_IMAGE .
+    - docker build -t $IMAGE_TAG .
     - docker images
-    - docker push $CI_REGISTRY_IMAGE
+    - docker push $IMAGE_TAG
   tags:
     - docker:stable
 
@@ -47,8 +50,8 @@ deploy:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker pull $CI_REGISTRY_IMAGE
-    - docker tag $CI_REGISTRY_IMAGE $HEROKU_STAGING
+    - docker pull $IMAGE_TAG
+    - docker tag $IMAGE_TAG $HEROKU_STAGING
     - docker login -u _ -p $HEROKU_STAGING_API_KEY registry.heroku.com
     - docker push $HEROKU_STAGING
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_STAGING_API_KEY wingrunr21/alpine-heroku-cli container:release web --app $STAGING_APP
@@ -56,15 +59,21 @@ deploy:
   tags:
     - docker:stable 
 
-test_stage:
-  image: alpine
-  stage: automated testing
-  before_script:
-    - apk --no-cache add curl
+deploy_production:
+  image: docker:stable
+  services:
+    - docker:dind
+  stage: deploy production
+  before_script: 
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - curl https://$STAGING_APP.herokuapp.com/ | grep "Employee Data"
+    - docker pull $IMAGE_TAG
+    - docker tag  $IMAGE_TAG $HEROKU_PRODUCTION
+    - docker login -u _ -p $HEROKU_PRODUCTION_API_KEY registry.heroku.com
+    - docker push $HEROKU_PRODUCTION
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_PRODUCTION_API_KEY wingrunr21/alpine-heroku-cli container:release web --app $PRODUCTION_APP
+    - echo "App deployed to production server at https://$PRODUCTION_APP.herokuapp.com/"Project - deploy to production
 
   tags:
-    - alpine
-
+    - docker:stable 
 
