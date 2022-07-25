@@ -5,7 +5,7 @@ stages:
   - deploy production
 
 variables:
-  IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-app/employee-image:$CI_COMMIT_REF_SLUG
+  IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-app/employee-image:$CI_COMMIT_SHORT_SHA
   STAGING_APP: emp-app-stage
   HEROKU_STAGING: "registry.heroku.com/$STAGING_APP/web"
   PRODUCTION_APP: emp-app-production
