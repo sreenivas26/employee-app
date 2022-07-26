@@ -50,7 +50,7 @@ deploy_feature:
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG.herokuapp.com/
-  before_scripts: 
+  before_script: 
     - export FEATURE_APP="$CI_ENVIRONMENT_SLUG"
     - export HEROKU_FEATURE="registry.heroku.com/$FEATURE_APP/web"
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
