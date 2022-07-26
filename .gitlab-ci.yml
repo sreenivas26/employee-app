@@ -2,16 +2,17 @@ stages:
   - test
   - build
   - deploy feature
-  - deploy-staging
+  - deploy staging
   - deploy production
 
 variables:
-  IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-app/employee-image:$CI_COMMIT_SHORT_SHA
-  STAGING_APP: emp-app-stage
+  IMAGE_TAG: $CI_REGISTRY_IMAGE/employee-image:$CI_COMMIT_SHORT_SHA
+  STAGING_APP: emp-portal-staging
+  PRODUCTION_APP: emp-portal-production
+
   HEROKU_STAGING: "registry.heroku.com/$STAGING_APP/web"
-  PRODUCTION_APP: emp-app-production
   HEROKU_PRODUCTION: "registry.heroku.com/$PRODUCTION_APP/web"
-    
+
 
 lint_test:
   image: python:3.8.0-slim
@@ -28,25 +29,24 @@ lint_test:
   tags:
     - docker
 
+
 build:
-  image: docker:stable
+  image: docker:latest
   services:
     - docker:dind
   stage: build
-  before_script:
+  before_script: 
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker build -t $IMAGE_TAG .
     - docker images
     - docker push $IMAGE_TAG
-  tags:
-    - docker:stable
 
 deploy_feature:
   image: docker:stable
   services:
     - docker:dind
-  stage: deploy feature  
+  stage: deploy feature
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG.herokuapp.com/
@@ -68,31 +68,30 @@ deploy_feature:
       dotenv: deploy_feature.env
   only:
     - /^feature-.*$/
-  
-  tags:
+  tags: 
     - docker:stable
 
-deploy:
+deploy_stage:
   image: docker:stable
   services:
     - docker:dind
-  stage: deploy-staging
+  stage: deploy staging
   environment:
     name: staging
     url: https://$STAGING_APP.herokuapp.com/
-  before_script:
+  before_script: 
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker pull $IMAGE_TAG
-    - docker tag $IMAGE_TAG $HEROKU_STAGING
+    - docker tag  $IMAGE_TAG $HEROKU_STAGING
     - docker login -u _ -p $HEROKU_STAGING_API_KEY registry.heroku.com
     - docker push $HEROKU_STAGING
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_STAGING_API_KEY wingrunr21/alpine-heroku-cli container:release web --app $STAGING_APP
     - echo "App deployed to stagig server at https://$STAGING_APP.herokuapp.com/"
-  tags:
-    - docker:stable 
   only:
     - main
+  tags:
+    - docker:stable
 
 deploy_production:
   image: docker:stable
@@ -114,5 +113,5 @@ deploy_production:
   only:
     - main
   tags:
-    - docker:stable 
-
+    - docker:stable
+  
