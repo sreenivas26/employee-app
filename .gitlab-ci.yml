@@ -46,7 +46,7 @@ deploy_feature:
   image: docker:stable
   services:
    - docker:dind
-  stage: build feature  
+  stage: deploy feature  
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG.herokuapp.com/
