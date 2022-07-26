@@ -45,7 +45,7 @@ build:
 deploy_feature:
   image: docker:stable
   services:
-   - docker:dind
+    - docker:dind
   stage: deploy feature  
   environment:
     name: review/$CI_COMMIT_REF_NAME
