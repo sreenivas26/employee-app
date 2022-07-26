@@ -41,6 +41,9 @@ build:
     - docker build -t $IMAGE_TAG .
     - docker images
     - docker push $IMAGE_TAG
+  
+  tags:
+    - docker:stable
 
 deploy_feature:
   image: docker:stable
