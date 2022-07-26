@@ -43,18 +43,18 @@ build:
     - docker:stable
 
 deploy_feature:
- image: docker:stable
- services:
-  - docker:dind
- stage: build feature  
- environment:
-   name: review/$CI_COMMIT_REF_NAME
-   url: https://$CI_ENVIRONMENT_SLUG.herokuapp.com/
- before_scripts: 
-   - export FEATURE_APP="$CI_ENVIRONMENT_SLUG"
-   - export HEROKU_FEATURE="registry.heroku.com/$FEATURE_APP/web"
-   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
- script:
+  image: docker:stable
+  services:
+   - docker:dind
+  stage: build feature  
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://$CI_ENVIRONMENT_SLUG.herokuapp.com/
+  before_scripts: 
+    - export FEATURE_APP="$CI_ENVIRONMENT_SLUG"
+    - export HEROKU_FEATURE="registry.heroku.com/$FEATURE_APP/web"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
     - echo "FEATURE_APP=$CI_ENVIRONMENT_SLUG" >> deploy_feature.env
     - docker pull $IMAGE_TAG
     - docker tag  $IMAGE_TAG $HEROKU_FEATURE
@@ -72,6 +72,7 @@ deploy_feature:
   tags:
     - docker:stable
 
+deploy:
   image: docker:stable
   services:
     - docker:dind
